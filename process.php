@@ -1,38 +1,34 @@
 <?php
-   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get user input from the form
     $text = $_POST['text'];
-    $sort= $_POST['sort'];
-    $limit = $_POST['limit'];
-   }
-    function calculate_Word_Frequency($text, $sort, $limit) {
-        $words = str_word_count($text, 1);
+    $sortOrder = $_POST['sort_order'];
+    $displayLimit = $_POST['display_limit'];
 
-        $stopWords = ["the", "and", "in"];
+    // Tokenize the input text into words
+    $words = str_word_count($text, 1);
 
-        $wordCounts = array_count_values(array_diff($words, $stopWords));
+    // Remove common stop words from the list of words (you can define your list)
+    $stopWords = ["the", "and", "in"]; // Define your stop words
+    $words = array_diff($words, $stopWords);
 
-        if ($sort === "asc") {
-            asort($wordCounts);
-        } else {
-            arsort($wordCounts);
-        }
+    // Calculate word frequencies
+    $wordFrequencies = array_count_values($words);
 
-        $wordCounts = array_slice($wordCounts, 0, $limit);
-
-        return $wordCounts;
+    // Sort the word frequencies based on user's choice
+    if ($sortOrder === 'ascending') {
+        asort($wordFrequencies);
+    } else {
+        arsort($wordFrequencies);
     }
 
-        if (!empty($text)) {
-            $wordFrequencies = calculate_Word_Frequency($text, $sort, $limit);
+    // Display the top N words
+    $topWords = array_slice($wordFrequencies, 0, $displayLimit, true);
 
-            echo "<h2>Word Frequency:</h2>";
-            echo "<ul>";
-            foreach ($wordFrequencies as $word => $frequency) {
-                echo "<li>$word: $frequency</li>";
-            }
-            echo "</ul>";
-        } else {
-            echo "<p>Please enter some text.</p>";
-        }
-        
-    ?>
+    // Display the results
+    echo "<h2>Word Frequencies:</h2>";
+    foreach ($topWords as $word => $frequency) {
+        echo "$word: $frequency<br>";
+    }
+}
+?>
